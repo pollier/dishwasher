@@ -1,3 +1,7 @@
+int drain_pump = 13;                 // LED connected to digital pin 13
+int cycle_pump = 13;                 // LED connected to digital pin 13
+int heat = 13;                 // LED connected to digital pin 13
+int vanne = 13;                 // LED connected to digital pin 13
 int ledPin = 13;                 // LED connected to digital pin 13
 
 void setup()
