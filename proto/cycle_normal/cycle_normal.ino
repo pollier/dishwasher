@@ -1,21 +1,31 @@
-int drain_pump = 13;                 // LED connected to digital pin 13
-int cycle_pump = 13;                 // LED connected to digital pin 13
-int heat = 13;                 // LED connected to digital pin 13
-int vanne = 34;                 // LED connected to digital pin 13
-int ledPin = 46;                 // LED connected to digital pin 13
+#include "dishwasher.h"
+// OneWire DS18S20, DS18B20, DS1822 Temperature Example
+//
+// http://www.pjrc.com/teensy/td_libs_OneWire.html
+//
+// The DallasTemperature library can do all this work for you!
+// http://milesburton.com/Dallas_Temperature_Control_Library
+OneWire  ds(10);  // on pin 10 (a 4.7K resistor is necessary)
 
-void setup()
+
+
+void setup(void)
 {
-  pinMode(ledPin, OUTPUT);      // sets the digital pin as output
-  // pinMode(vanne, OUTPUT);      // sets the digital pin as output
+	Serial.begin(9600);
+	pinMode(7, OUTPUT);
+	pinMode(8, OUTPUT);
 }
 
-void loop()
+void loop(void)
 {
-  digitalWrite(ledPin, LOW);    // sets the LED off
-  Serial.begin(9600);
-  Serial.write("LOW\n");
-  delay(1000);                  // waits for a second
-  digitalWrite(ledPin, HIGH);    // sets the LED off
-  delay(1000);
+	digitalWrite(7, HIGH);
+	digitalWrite(8, HIGH);
+	delay(100);
+	Serial.println(millis());
+	digitalWrite(7, LOW);
+	delay(200);
+	digitalWrite(8, LOW);
+	delay(200);
+	show_temp();
+
 }
