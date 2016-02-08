@@ -1,5 +1,4 @@
 #include "dishwasher.h"
-#define PIN_HEAT	8
 
 void	chauffe(int minutes)
 {
@@ -7,9 +6,12 @@ void	chauffe(int minutes)
 	static unsigned long	len = 0;
 	float					temp;
 	temp = temp_float();
+	Serial.println(temp);
 	if (!offset && !len)
 	{
 		offset = millis();
+		Serial.print("offset :");
+		Serial.println(offset);
 		len = minutes * 3600 * 1000;
 	}
 	if ((len + offset) < millis())
