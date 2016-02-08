@@ -1,5 +1,6 @@
 #ifndef dishwasher_h
 #define dishwasher_h
 #include <OneWire.h>
-void	show_temp();
+void	temp_serial();
+float	temp_float();
 #endif
