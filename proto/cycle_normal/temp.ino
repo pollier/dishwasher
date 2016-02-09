@@ -1,4 +1,7 @@
 #include <OneWire.h>
+
+OneWire  ds(7);  // on pin 10 (a 4.7K resistor is necessary)
+
 float	temp_float()
 {
 	byte i;

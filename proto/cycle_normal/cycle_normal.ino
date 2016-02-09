@@ -6,13 +6,10 @@ void setup(void)
 {
 	Serial.begin(9600);
 	pinMode(7, OUTPUT);
-	pinMode(8, OUTPUT);
+	pinMode(8, INPUT_PULLUP);
 }
 
 void loop(void)
 {
-	Serial.print(" uptime : ");
-	Serial.print(millis() / 1000);
-	Serial.println(" seconds");
-	temp_serial();
+	Serial.println(digitalRead(pin));
 }
