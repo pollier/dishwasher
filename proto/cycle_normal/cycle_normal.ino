@@ -1,6 +1,6 @@
 #include "dishwasher.h"
 
-OneWire  ds(10);  // on pin 10 (a 4.7K resistor is necessary)
+OneWire  ds(7);  // on pin 10 (a 4.7K resistor is necessary)
 
 void setup(void)
 {
@@ -11,6 +11,8 @@ void setup(void)
 
 void loop(void)
 {
-	Serial.println(millis());
-	// chauffe(1);
+	Serial.print(" uptime : ");
+	Serial.print(millis() / 1000);
+	Serial.println(" seconds");
+	temp_serial();
 }
