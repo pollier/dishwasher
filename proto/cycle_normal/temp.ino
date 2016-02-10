@@ -12,7 +12,7 @@ float	temp_float()
 	{
 		ds.reset_search();
 		delay(250);
-		return(0);
+		return(temp_float());
 	}
 	if (OneWire::crc8(addr, 7) != addr[7])
 	{
@@ -63,6 +63,8 @@ void	temp_serial()
 	if ( !ds.search(addr))
 	{
 		ds.reset_search();
+		delay(250);
+		temp_serial();
 		return;
 	}
 
