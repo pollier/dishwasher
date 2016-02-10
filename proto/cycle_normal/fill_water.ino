@@ -4,5 +4,9 @@
 
 void	fill_water()
 {
-	
+	while(digitalRead(PIN_PRESSION))
+	{
+		digitalWrite(PIN_VANNE, LOW);
+	}
+	digitalWrite(PIN_VANNE, HIGH);
 }

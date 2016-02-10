@@ -1,22 +1,12 @@
 #include "dishwasher.h"
 
-void	chauffe(int minutes)
+void	chauffe(unsigned long secondes)
 {
-	static unsigned long	offset = 0;
+	static unsigned long	start_time = 0;
 	static unsigned long	len = 0;
-	float					temp;
-	temp = temp_float();
-	Serial.println(temp);
-	if (!offset && !len)
+	if(digitalRead(PIN_PRESSION))
 	{
-		offset = millis();
-		Serial.print("offset :");
-		Serial.println(offset);
-		len = minutes * 3600 * 1000;
-	}
-	if ((len + offset) < millis())
-	{
-		if (temp < 65)
+		if(start_time && len && millis() < (start_time + len))
 		{
 			digitalWrite(PIN_HEAT, LOW);
 		}
