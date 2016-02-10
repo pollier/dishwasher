@@ -1,6 +1,6 @@
 #include "dishwasher.h"
 
-OneWire  ds(7);  // on pin 10 (a 4.7K resistor is necessary)
+OneWire  ds(PIN_ONEWIRE);  // on pin 10 (a 4.7K resistor is necessary)
 
 void setup(void)
 {
