@@ -1,7 +1,4 @@
 #include	"dishwasher.h"
-#include	<OneWire.h>
-
-OneWire  ds(PIN_ONEWIRE);  // (a 4.7K resistor is necessary)
 
 void setup(void)
 {
@@ -17,6 +14,7 @@ void setup(void)
 
 void loop(void)
 {
-	porte_check();
-	fill_water();
+	float  temp = 0;
+  get_temperature(&temp);
+  Serial.println(temp);
 }
