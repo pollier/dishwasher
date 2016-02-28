@@ -19,11 +19,36 @@ void setup()
 	pinMode(PIN_PORTE, INPUT_PULLUP);
 }
 
+void	fillwater()
+{
+	Serial.println("fillwater");
+}
+
+void	chauffe(float t_target)
+{
+	Serial.print("HEAT target : ");
+	Serial.println(t_target);
+}
+
+void	start_cycle()
+{
+	Serial.println("cycle");
+}
+
+void	purge()
+{
+	Serial.println("purge");
+}
+
 void loop()
 {
 	Serial.println("Debut du programme dans 3 secondes");
 	delay(3000);
-	
+
+	fillwater();
+	start_cycle();
+	chauffe(60.5);
+	purge();
 	while(1)
 	{
 
