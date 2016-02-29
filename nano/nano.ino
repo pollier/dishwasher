@@ -90,52 +90,58 @@ void	fillwater()
 void	chauffe(float t_target)
 {
 	static	long	last_time = 0;
-	long			tmp;
+	long			current_time;
 	float			mesure = 0;
 
-	tmp = millis();
-	getTemperature(&mesure, (last_time - tmp > 750));
-	if(last_time - tmp > 750 && mesure)
+	current_time = millis();
+	getTemperature(&mesure, (current_time - last_time > 750));
+	if(current_time - last_time > 750 && mesure)
 	{
 		Serial.print("Temperature :\t");
 		Serial.println(mesure);
 	}
-	if(last_time - tmp > 1000)
+	if(current_time - last_time > 1000)
 	{
+		Serial.println("\n\n");
 		Serial.print("HEAT target :\t");
 		Serial.println(t_target);
 		Serial.print("Thermostat :\t");
 		Serial.println(digitalRead(PIN_THERMOSTAT));
 	}
 
-	if(digitalRead(PIN_THERMOSTAT) || check_level() || mesure > t_target)
+	if(!digitalRead(PIN_THERMOSTAT) || !check_level())
 	{
 		digitalWrite(PIN_HEAT, HIGH);
 		if(check_level())
 		{
 			digitalWrite(PIN_PUMP_CYCLE, HIGH);
-			if(last_time - tmp > 1000)
+			if(current_time - last_time > 1000)
 			{
-				Serial.println("Cycle off");
+				Serial.println("Cycle\t\toff");
 			}
 		}
-		if(last_time - tmp > 1000)
+		if(current_time - last_time > 1000)
 		{
-			Serial.println("Heat off");
+			Serial.println("Heat\t\toff");
 		}
 	}
 
 	else
 	{
-		if(last_time - tmp > 1000)
+		if(current_time - last_time > 1000)
 		{
-			Serial.println("Heat on");
+			Serial.println("Heat\t\ton");
+			Serial.println("Cycle\t\ton");
+			Serial.print("Level : \t");
+			Serial.println(check_level());
 		}
 		digitalWrite(PIN_HEAT, LOW);
 		digitalWrite(PIN_PUMP_CYCLE, LOW);
 	}
-
-	last_time = millis();
+	if(current_time - last_time > 1000)
+	{
+		last_time = millis();
+	}
 }
 
 void	purge()
@@ -149,21 +155,26 @@ void	purge()
 void	check_porte()
 {
 	long	last_time = 0;
-	long	tmp = 0;
+	long	current_time = 0;
 
 	last_time = millis();
-	while(digitalRead(PIN_PORTE))
+	if(digitalRead(PIN_PORTE))
 	{
-		digitalWrite(PIN_HEAT, HIGH);
-		digitalWrite(PIN_PUMP_CYCLE, HIGH);
-		digitalWrite(PIN_PUMP_PURGE, HIGH);
-		digitalWrite(PIN_VANNE, HIGH);
-		tmp = millis();
-		if(last_time - tmp > 1000)
+		while(digitalRead(PIN_PORTE))
 		{
-			Serial.println("Porte ouverte !!!");
-			last_time = millis();
+			digitalWrite(PIN_HEAT, HIGH);
+			digitalWrite(PIN_PUMP_CYCLE, HIGH);
+			digitalWrite(PIN_PUMP_PURGE, HIGH);
+			digitalWrite(PIN_VANNE, HIGH);
+			current_time = millis();
+			if(current_time - last_time > 1000)
+			{
+				Serial.println("Porte ouverte !!!");
+				last_time = millis();
+			}
+
 		}
+		delay(2000);
 	}
 }
 
@@ -180,10 +191,9 @@ void	loop()
 {
 	long	start;
 	long	current;
-	Serial.println("Debut du programme dans 3 secondes");
-	delay(3000);
 	fillwater();
 	Serial.println("full water");
+	delay(1000);
 	start = millis();
 	while(1)
 	{
