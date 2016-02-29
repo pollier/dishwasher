@@ -1,6 +1,6 @@
 #ifndef		NANO_H
 #define		NANO_H
-#include	<OneWire.h>	//	Inclusion	de	la	librairie	OneWire
+#include	<OneWire.h> // Inclusion de la librairie OneWire
 
 #define		DS18B20			0x28	//	Adresse	1-Wire	du	DS18B20
 #define		PIN_LEVEL		0

@@ -5,16 +5,12 @@ void	setup()
 	Serial.begin(9600);
 	pinMode(PIN_HEAT, OUTPUT);
 	digitalWrite(PIN_HEAT, HIGH);
-
 	pinMode(PIN_VANNE, OUTPUT);
 	digitalWrite(PIN_VANNE, HIGH);
-
 	pinMode(PIN_PUMP_PURGE, OUTPUT);
 	digitalWrite(PIN_PUMP_PURGE, HIGH);
-
 	pinMode(PIN_PUMP_CYCLE, OUTPUT);
 	digitalWrite(PIN_PUMP_CYCLE, HIGH);
-
 	pinMode(PIN_THERMOSTAT, INPUT_PULLUP);
 	pinMode(PIN_PORTE, INPUT_PULLUP);
 }
@@ -30,54 +26,6 @@ boolean	check_level()
 	return false;
 }
 
-OneWire ds(PIN_ONEWIRE); // Création de l'objet OneWire ds
-
-void	getTemperature(float *temp, boolean iter)
-{
-	byte data[9], addr[8];
-	// data : Données lues depuis le scratchpad
-	// addr : adresse du module 1-Wire détecté
-
-	if (!ds.search(addr))
-	{
-		// Recherche un module 1-Wire
-		ds.reset_search();    // Réinitialise la recherche de module
-		return;         // Retourne une erreur
-	}
-
-	if (OneWire::crc8(addr, 7) != addr[7]) // Vérifie que l'adresse a été correctement reçue
-	return;                        // Si le message est corrompu on retourne une erreur
-
-	if (addr[0] != DS18B20) // Vérifie qu'il s'agit bien d'un DS18B20
-	return;         // Si ce n'est pas le cas on retourne une erreur
-
-	ds.reset();             // On reset le bus 1-Wire
-	ds.select(addr);        // On sélectionne le DS18B20
-
-	ds.write(0x44, 1);      // On lance une prise de mesure de température
-
-	if(!iter)
-	{
-		return;
-	}
-	else
-	{
-		delay(800);
-	}
-	ds.reset();             // On reset le bus 1-Wire
-	ds.select(addr);        // On sélectionne le DS18B20
-	ds.write(0xBE);         // On envoie une demande de lecture du scratchpad
-
-	for (byte i = 0; i < 9; i++) // On lit le scratchpad
-	data[i] = ds.read();       // Et on stock les octets reçus
-
-	// Calcul de la température en degré Celsius
-	*temp = ((data[1] << 8) | data[0]) * 0.0625;
-
-	// Pas d'erreur
-	return;
-}
-
 void	fillwater()
 {
 	while(!check_level())
@@ -91,9 +39,7 @@ void	chauffe(float t_target)
 {
 	static	long	last_time = 0;
 	long			current_time;
-	float			mesure = 0;
-
-	current_time = millis();
+	float			mesure = 0;current_time = millis();
 	getTemperature(&mesure, (current_time - last_time > 750));
 	if(current_time - last_time > 750 && mesure)
 	{
@@ -108,7 +54,6 @@ void	chauffe(float t_target)
 		Serial.print("Thermostat :\t");
 		Serial.println(digitalRead(PIN_THERMOSTAT));
 	}
-
 	if(!digitalRead(PIN_THERMOSTAT) || !check_level())
 	{
 		digitalWrite(PIN_HEAT, HIGH);
@@ -125,7 +70,6 @@ void	chauffe(float t_target)
 			Serial.println("Heat\t\toff");
 		}
 	}
-
 	else
 	{
 		if(current_time - last_time > 1000)
@@ -155,9 +99,7 @@ void	purge()
 void	check_porte()
 {
 	long	last_time = 0;
-	long	current_time = 0;
-
-	last_time = millis();
+	long	current_time = 0;last_time = millis();
 	if(digitalRead(PIN_PORTE))
 	{
 		while(digitalRead(PIN_PORTE))
@@ -171,9 +113,7 @@ void	check_porte()
 			{
 				Serial.println("Porte ouverte !!!");
 				last_time = millis();
-			}
-
-		}
+			}	}
 		delay(2000);
 	}
 }
