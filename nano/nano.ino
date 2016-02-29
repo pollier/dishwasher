@@ -1,6 +1,6 @@
 #include "nano.h"
 
-void setup()
+void	setup()
 {
 	Serial.begin(9600);
 	pinMode(PIN_HEAT, OUTPUT);
@@ -21,7 +21,7 @@ void setup()
 
 void	fillwater()
 {
-	Serial.println("fillwater");
+	while
 }
 
 void	chauffe(float t_target)
@@ -40,7 +40,12 @@ void	purge()
 	Serial.println("purge");
 }
 
-void loop()
+bool	check_water_level()
+{
+
+}
+
+void	loop()
 {
 	Serial.println("Debut du programme dans 3 secondes");
 	delay(3000);
