@@ -1,11 +1,11 @@
 void setup(void)
 {
 	Serial.begin(9600);
-	pinMode(8, OUTPUT);
+	pinMode(5, OUTPUT);
 }
 void loop(void)
 {
-	digitalWrite(8, LOW);
+	digitalWrite(5, LOW);
 	delay(35000);
-	digitalWrite(8, HIGH);
+	digitalWrite(5, HIGH);
 }

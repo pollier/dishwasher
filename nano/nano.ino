@@ -52,18 +52,13 @@ boolean	check_level()
 {
 	int		retour_read = 0;
 	retour_read = analogRead(PIN_LEVEL);
-	if(retour_read > 10)
+	if(retour_read > 100)
 	{
 		debug_serial(1, LEVEL);
 		return true;
 	}
 	else
 	{
-		digitalWrite(PIN_VANNE, LOW);
-		debug_serial(1, VANNE);
-		delay(1000);
-		digitalWrite(PIN_VANNE, HIGH);
-		debug_serial(0, VANNE);
 		debug_serial(0, LEVEL);
 		return false;
 	}
@@ -90,7 +85,8 @@ void	debug_serial(boolean value, int flag)
 	static boolean		level	= 0;
 	static boolean		porte	= 0;
 	boolean				print	= 0;
-	unsigned long		uptime = 0;
+	unsigned long		uptime	= 0;
+	unsigned long		uptime2	= 0;
 
 	if(flag == HEAT && heat != value)
 	{
@@ -120,6 +116,7 @@ void	debug_serial(boolean value, int flag)
 	else if(flag == LEVEL && level != value)
 	{
 		level = value;
+		print = 1;
 	}
 	else if(flag == PORTE && porte != value)
 	{
@@ -146,12 +143,14 @@ void	debug_serial(boolean value, int flag)
 		Serial.println(level ? "TRUE" : "FALSE");
 		Serial.print("\n");
 		Serial.print("Uptime : ");
-		uptime = millis();
-		uptime /= 1000;
+		uptime2 = millis();
+		uptime = uptime2 / 1000;
 		Serial.print(uptime / 60);
 		Serial.print(" minutes ");
 		Serial.print(uptime % 60);
-		Serial.println((uptime % 60) > 1 ? " secondes" : " seconde");
+		Serial.print((uptime % 60) > 1 ? " secondes " : " seconde ");
+		Serial.print(uptime2 % 1000);
+		Serial.println(" ms");
 	}
 }
 
@@ -168,7 +167,8 @@ void	fillwater()
 
 void	chauffe()
 {
-	if(check_thermostat() && check_level())
+	// if(check_thermostat() && check_level())
+	if(check_thermostat())
 	{
 		heat_on();
 		cycle_on();
@@ -193,7 +193,6 @@ long	check_porte()
 	unsigned long enter = millis();
 	if(digitalRead(PIN_PORTE))
 	{
-		debug_serial(1, PORTE);
 		while(digitalRead(PIN_PORTE))
 		{
 			digitalWrite(PIN_HEAT, HIGH);
@@ -204,6 +203,7 @@ long	check_porte()
 			debug_serial(0, PURGE);
 			digitalWrite(PIN_VANNE, HIGH);
 			debug_serial(0, VANNE);
+			debug_serial(1, PORTE);
 		}
 		delay(2000);
 		debug_serial(0, PORTE);
