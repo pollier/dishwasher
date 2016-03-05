@@ -2,7 +2,7 @@
 
 void	setup()
 {
-	Serial.begin(9600);
+	Serial.begin(115200);
 	pinMode(PIN_HEAT, OUTPUT);
 	digitalWrite(PIN_HEAT, HIGH);
 	pinMode(PIN_VANNE, OUTPUT);
@@ -15,15 +15,144 @@ void	setup()
 	pinMode(PIN_PORTE, INPUT_PULLUP);
 }
 
+void	heat_on()
+{
+	digitalWrite(PIN_HEAT, LOW);
+	debug_serial(1, HEAT);
+}
+void	heat_off()
+{
+	digitalWrite(PIN_HEAT, HIGH);
+	debug_serial(0, HEAT);
+}
+
+void	cycle_on()
+{
+	digitalWrite(PIN_PUMP_CYCLE, LOW);
+	debug_serial(1, CYCLE);
+}
+void	cycle_off()
+{
+	digitalWrite(PIN_PUMP_CYCLE, HIGH);
+	debug_serial(0, CYCLE);
+}
+
+void	purge_on()
+{
+	digitalWrite(PIN_PUMP_PURGE, LOW);
+	debug_serial(1, PURGE);
+}
+void	purge_off()
+{
+	digitalWrite(PIN_PUMP_PURGE, HIGH);
+	debug_serial(0, PURGE);
+}
+
 boolean	check_level()
 {
 	int		retour_read = 0;
 	retour_read = analogRead(PIN_LEVEL);
-	if(retour_read > 100)
+	if(retour_read > 10)
 	{
+		debug_serial(1, LEVEL);
 		return true;
 	}
+	else
+	{
+		digitalWrite(PIN_VANNE, LOW);
+		debug_serial(1, VANNE);
+		delay(1000);
+		digitalWrite(PIN_VANNE, HIGH);
+		debug_serial(0, VANNE);
+		debug_serial(0, LEVEL);
+		return false;
+	}
+}
+
+boolean	check_thermostat()
+{
+	if(digitalRead(PIN_THERMOSTAT))
+	{
+		debug_serial(1, LEVEL);
+		return true;
+	}
+	debug_serial(0, LEVEL);
 	return false;
+}
+
+void	debug_serial(boolean value, int flag)
+{
+	static boolean		heat	= 0;
+	static boolean		thermo	= 0;
+	static boolean		cycle	= 0;
+	static boolean		vanne	= 0;
+	static boolean		purge	= 0;
+	static boolean		level	= 0;
+	static boolean		porte	= 0;
+	boolean				print	= 0;
+	unsigned long		uptime = 0;
+
+	if(flag == HEAT && heat != value)
+	{
+		heat = value;
+		print = 1;
+	}
+	else if(flag == THERMO && thermo != value)
+	{
+		thermo = value;
+		print = 1;
+	}
+	else if(flag == CYCLE && cycle != value)
+	{
+		cycle = value;
+		print = 1;
+	}
+	else if(flag == VANNE && vanne != value)
+	{
+		vanne = value;
+		print = 1;
+	}
+	else if(flag == PURGE && purge != value)
+	{
+		purge = value;
+		print = 1;
+	}
+	else if(flag == LEVEL && level != value)
+	{
+		level = value;
+	}
+	else if(flag == PORTE && porte != value)
+	{
+		porte = value;
+		print = 1;
+	}
+
+	if(print)
+	{
+		Serial.println("\n\n");
+		Serial.print("Chauffe :\t");
+		Serial.println(heat ? "TRUE" : "FALSE");
+		Serial.print("Thermostat :\t");
+		Serial.println(thermo ? "TRUE" : "FALSE");
+		Serial.print("Cycle :\t\t");
+		Serial.println(cycle ? "TRUE" : "FALSE");
+		Serial.print("Vanne :\t\t");
+		Serial.println(vanne ? "TRUE" : "FALSE");
+		Serial.print("Purge :\t\t");
+		Serial.println(purge ? "TRUE" : "FALSE");
+		Serial.print("Porte :\t\t");
+		Serial.println(porte ? "TRUE" : "FALSE");
+		Serial.print("Level :\t\t");
+		Serial.println(level ? "TRUE" : "FALSE");
+		Serial.print("\n");
+		Serial.print("Uptime : ");
+		uptime = millis();
+		uptime /= 1000;
+		Serial.print(uptime / 60);
+		Serial.print(" minutes ");
+		Serial.print(uptime % 60);
+		Serial.println((uptime % 60) > 1 ? " secondes" : " seconde");
+	}
 }
 
 void	fillwater()
@@ -31,121 +160,108 @@ void	fillwater()
 	while(!check_level())
 	{
 		digitalWrite(PIN_VANNE, LOW);
+		debug_serial(1, VANNE);
 	}
 	digitalWrite(PIN_VANNE, HIGH);
+	debug_serial(0, VANNE);
 }
 
-void	chauffe(float t_target)
+void	chauffe()
 {
-	static	long	last_time = 0;
-	long			current_time;
-	float			mesure = 0;current_time = millis();
-	getTemperature(&mesure, (current_time - last_time > 750));
-	if(current_time - last_time > 750 && mesure)
+	if(check_thermostat() && check_level())
 	{
-		Serial.print("Temperature :\t");
-		Serial.println(mesure);
-	}
-	if(current_time - last_time > 1000)
-	{
-		Serial.println("\n\n");
-		Serial.print("HEAT target :\t");
-		Serial.println(t_target);
-		Serial.print("Thermostat :\t");
-		Serial.println(digitalRead(PIN_THERMOSTAT));
-	}
-	if(!digitalRead(PIN_THERMOSTAT) || !check_level())
-	{
-		digitalWrite(PIN_HEAT, HIGH);
-		if(check_level())
-		{
-			digitalWrite(PIN_PUMP_CYCLE, HIGH);
-			if(current_time - last_time > 1000)
-			{
-				Serial.println("Cycle\t\toff");
-			}
-		}
-		if(current_time - last_time > 1000)
-		{
-			Serial.println("Heat\t\toff");
-		}
+		heat_on();
+		cycle_on();
 	}
 	else
 	{
-		if(current_time - last_time > 1000)
+		heat_off();
+
+		if(check_level())
 		{
-			Serial.println("Heat\t\ton");
-			Serial.println("Cycle\t\ton");
-			Serial.print("Level : \t");
-			Serial.println(check_level());
+			cycle_on();
 		}
-		digitalWrite(PIN_HEAT, LOW);
-		digitalWrite(PIN_PUMP_CYCLE, LOW);
-	}
-	if(current_time - last_time > 1000)
-	{
-		last_time = millis();
+		else
+		{
+			cycle_off();
+		}
 	}
 }
 
-void	purge()
+long	check_porte()
 {
-	Serial.println("purge");
-	digitalWrite(PIN_PUMP_PURGE, LOW);
-	delay(20000);
-	digitalWrite(PIN_PUMP_PURGE, HIGH);
-}
-
-void	check_porte()
-{
-	long	last_time = 0;
-	long	current_time = 0;last_time = millis();
+	unsigned long enter = millis();
 	if(digitalRead(PIN_PORTE))
 	{
+		debug_serial(1, PORTE);
 		while(digitalRead(PIN_PORTE))
 		{
 			digitalWrite(PIN_HEAT, HIGH);
+			debug_serial(0, HEAT);
 			digitalWrite(PIN_PUMP_CYCLE, HIGH);
+			debug_serial(0, CYCLE);
 			digitalWrite(PIN_PUMP_PURGE, HIGH);
+			debug_serial(0, PURGE);
 			digitalWrite(PIN_VANNE, HIGH);
-			current_time = millis();
-			if(current_time - last_time > 1000)
-			{
-				Serial.println("Porte ouverte !!!");
-				last_time = millis();
-			}	}
+			debug_serial(0, VANNE);
+		}
 		delay(2000);
+		debug_serial(0, PORTE);
+		return (millis() - enter);
 	}
+	return (0);
 }
 
 void	stop()
 {
+	Serial.println("Fini !");
+	Serial.println("Fini !");
+	Serial.println("Fini !");
+
 	while(1)
 	{
-		Serial.println("Fini !");
-		delay(1000);
+		delay(100000);
 	}
 }
 
 void	loop()
 {
-	long	start;
-	long	current;
+	unsigned long	start;
+	unsigned long	current;
+	unsigned long	duree_lavage = 2400000;
+	unsigned long	duree_rincage = 300000;
+
 	fillwater();
-	Serial.println("full water");
 	delay(1000);
 	start = millis();
 	while(1)
 	{
-		check_porte();
-		chauffe(60);
+		duree_lavage += check_porte();
+		chauffe();
 		current = millis();
-		if(current - start > 2400000)
+		if(current - start > duree_lavage)
 		break;
 	}
-	digitalWrite(PIN_HEAT, HIGH);
-	digitalWrite(PIN_PUMP_CYCLE, HIGH);
-	digitalWrite(PIN_VANNE, HIGH);
-	purge();
+	heat_off();
+	cycle_off();
+	purge_on();
+	delay(20000);
+	purge_off();
+	while(RINCAGE)
+	{
+		duree_rincage += check_porte();
+		chauffe();
+		current = millis();
+		if(current - start > duree_rincage)
+		break;
+	}
+	if(RINCAGE)
+	{
+		heat_off();
+		cycle_off();
+		purge_on();
+		delay(20000);
+		purge_off();
+	}
 	stop();
 }

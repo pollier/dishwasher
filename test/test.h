@@ -1,7 +1,5 @@
-#ifndef		NANO_H
-#define		NANO_H
-
-#define		RINCAGE			0
+#ifndef		TEST_H
+#define		TEST_H
 
 #define		PIN_LEVEL		0
 #define		PIN_HEAT		8
@@ -10,16 +8,5 @@
 #define		PIN_PUMP_PURGE	5
 #define		PIN_THERMOSTAT	3
 #define		PIN_PORTE		2
-
-enum states
-{
-  THERMO,
-  HEAT,
-  CYCLE,
-  LEVEL,
-  VANNE,
-  PURGE,
-  PORTE
-};
 
 #endif
